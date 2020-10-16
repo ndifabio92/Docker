@@ -1,0 +1,59 @@
+[
+    {
+        "Name": "bridge",
+        "Id": "384a72a613d343bd0a8b6bc22620332b3c501e107336e58a7bd0c680b2581c7d",
+        "Created": "2020-10-01T09:33:45.549101708-03:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "0e65880f85aa9d6889073bdc6ae655405ad6fd943091f52607b39c647698ffb6": {
+                "Name": "nginx3",
+                "EndpointID": "764ae1e7da034a83df1ca2fa746d2967e2c0607826dc5914df34217d34222d68",
+                "MacAddress": "02:42:ac:11:00:04",
+                "IPv4Address": "172.17.0.4/16",
+                "IPv6Address": ""
+            },
+            "15e504402031ff4ba3233768cd250fb56ee1e8cb8c6e4933d7d81732d7569587": {
+                "Name": "nginx2",
+                "EndpointID": "418f9963afd6aa095f0e4d122333f29ac795d195fafe6f78ba19fb3a3f793701",
+                "MacAddress": "02:42:ac:11:00:03",
+                "IPv4Address": "172.17.0.3/16",
+                "IPv6Address": ""
+            },
+            "73e800b4b9535e94b424a349e445b17622ea14206ca970f94a3905678be7aa3a": {
+                "Name": "unruffled_solomon",
+                "EndpointID": "d6ea611bc7a4f421df1b44787510142f9a1e8d35e8ee9f6a0897790ad88b3198",
+                "MacAddress": "02:42:ac:11:00:02",
+                "IPv4Address": "172.17.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        },
+        "Labels": {}
+    }
+]

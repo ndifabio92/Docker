@@ -1,0 +1,41 @@
+					DOCKER
+
+Que es Docker?
+- Es una herramienta que permite desplegar aplicaciones en contenedores, de forma rapida y portable.
+- Permite generar aplicaciones de bolsillos. En una imagen se define toda la configuracion que necesita la aplicacion para funcionar y en el container se compila.
+- Tambien es mas facil escalar aplicaciones.
+- Destruir y recrear imagenes.
+- EJ: docker run -d -p 80:80 --name web httpd
+
+Arquitectura de Docker ( Docker Host )
+- Docker Host --> donde se intala docker.
+- Docker Daemon-Server --> servicio de docker
+- Rest API --> es el canal de comunicacion entre docker server y docker server ( viven en el mismo servidor )
+- Docker CLI - Cliente --> comandos dockers
+- Contenedor, Imagenes, Volumenes, Redes
+
+Que es una Image?
+Es un paquete que contiene toda la configuracion necesaria para que funcione el servicio
+Se forman por capas:
+	- Capa 1 - FROM ( el OS que se va a utilizar )
+	- Capa 2 - RUN ( lo que se va a instalar despues del FROM ) 
+	- Capa 3 - CMD ( la linea que se va a ejecutar despues que se hagan las capas anteriores )
+	Solo son capaz de lectura
+
+Dockerfile:
+Archivo de texto plano que contiene las instruccion de las capas
+Ej: 
+	FROM centros:7
+	RUN yum -y install httpd
+	CMD ["apachectl","-DFOREGROUND"]
+
+Que es un Contenedor?
+Es una capa adicional que se encarga de una ejecucion de las capas anteriores en tiempo real, capa de ejecucion, se puede borrar y volver a crear
+Contiene:
+	- Imagen
+	- Volumenes ( mantener informacion de forma persistente )
+	- Redes
+
+Contenedores VS Maquinas Virtuales
+- El contenedor es un proceso aislado que utiliza los recursos del sistemas. Solo se crea lo que se va a utilizar.
+- Maquina virtual --> se le tiene que asignar los recursos de la maquina principal, sin contar todas las intalaciones que vienen por defecto a la hora se crear una MW

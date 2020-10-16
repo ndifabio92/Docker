@@ -1,0 +1,282 @@
+					Introduccion a Docker
+
+- Container ( contenedor ) empaqueta de forma ligera todo lo necesario para que funcionen: codigo, herramientas del sistema, bibliotecas del sistema, dependecias, etc.
+- Esto garantiza que siempre se podra ejecutar, independientemente del entorno en el que queramos desplegarlo
+
+				Imagenes, Contenedores y Daemons
+- Arquitectura de Docker:
+	- Docker Host
+	- Dockerd Deamon --> Docker Client
+				- Pull
+				- Push
+				- Run
+	- Imagenes (solo lectura): se usan para construir los containers (objetos de la plantilla)
+
+					Trabajar con Contenedores
+- Arrancar y parar Docker
+	- dockerd --> demonio permite arrancar los servicios de docker
+	- docker --> cliente que se conecta con el servidor
+	- systemctl status docker --> sirve para ver el status del mismo
+	- systemctl start docker --> para arrancar el serivicio
+	- systemctl stop docker --> para parar el servicio
+	- systemctl enable docker --> se inicia de forma automatica
+
+- Commandos:
+	- docker --version
+	- docker info --> nos da informacion de toda la estructura de docker ( cantidad de contenedores, estado de los mismo)
+	- docker --> lista de comandos
+	- docker images --> lista de images
+	- docker ps --> muestra los contenedores corriendo
+	- docker ps -a --> muestra los contenedores detenidos
+	- docker ps -l --> muestra el ultimo que se ejecuto
+	- docker ps -a -q --> muestra el id de los contenedores
+	- docker rm + 'id o name' --> elimina el contenedor
+	- docker rmi + 'id o name' --> elimina la imagen
+	- docker exec -it (interactivo) + 'nameRepo' bash --> me permite ingresar en el bash para modificar el contenedor , se usa mas que nada en los contenedores que no son interactivos (-it)
+
+- Crear un container
+	- docker run +'imagen a descargar' --> se crea un contenedor apartir de la imagen seleccionada y se ejecuta
+	- docker run -it + imagen --> es un contenedor interactivo si la imagen lo permite
+
+
+					Docker Hub
+Repositorio donde existen imagenes creadas ( personas o empresas )
+- Tag --> seria la version del repositorio ( latest --> seria la ultima )
+- Pull --> me descarga el repositorio
+- Run --> me descarga la imagen, me crea el repositorio y lo ejecuta
+
+
+- docker Logs --> me muestra por pantalla lo que se estaria ejecutando
+- docker kill + 'contenedor' --> mata el contenedor
+- docker top + id --> nos permite saber los consumos dentro del contenedor
+- docker stats + id --> el uso del contenedor
+- docker inspect + id --> recuperar de informacion de una imagen o de un contenedor 
+
+
+
+					Docker Redes
+Los puertos son privados se tienen que hacer publicos, se pueden mapear con los puertos del host.
+- docker run -d -P + repository --> -P transforma todos los puertos del repositorio en publicos
+- docker run -d --name 'nombreContenedor' -p 8080:80 'repository' --> voy a acceder por el puerto 8080 de mi pc al puerto 80 del contenedor
+- docker network ls --> lista de las redes de los contenedores
+- docker inspect 'contenedor' | grep IPAd --> ver las direcciones IP
+- docker network create --> para crear una red , -d driver (none,bridge o personalizados),
+- nmcli con --> veo las redes conectadas.
+
+	Asociar contenedores a una red con --link
+NOTA: docker rm `docker ps -aq` --> lo que hace las `` ejecuta el comando que tiene a dentro y se lo envia al comando externo
+
+- docker run -it --rm --name b3 --link b1:maquina1 busybox --> me genera un nuevo contenedor apartir del contendo b1 , se le pone el alias de 'maquina1'
+- docker run -d --name mysql_server --rm --network red1 -e MYSQL_ROOT_PASSWORD=secret mysql --> me crea un contenedor de mysql al cual vamos a utilizar como servidor y se le asigna a la red 1 y se crea una base de datos.
+Despues hacemos docker run -it --name mysql_client --rm --network red1 mysql bash --> con esto creamos un contenedor que vamos a usear como clientes y se le asigna a la misma red que el servidor red1 y entramos como bash para evitar que genere una nueva base.
+Una ves dentro de este conector podemos hacer que se conecter al servidor con el siguiente comando
+docker exec -it mysql_server bash
+
+
+como conectarnos de wordpress a mysql
+se ponen todas en la misma red asi se encuentra , ejemplo red1
+docker run -d --name wp --rm --network red1 -e WORDPRESS_DB_HOST=mysql_wp -e WORDPRESS_DB_PASSWORD=secret -p 8080:80 wordpress --> se le asigna un puerto 8080 que hace referencia al puerta 80 de wordpress
+
+- docker network rm --> para eliminar network
+- docker network ls --> para mostrar la lista de las network
+
+
+				Volumunes
+- se utilizan para persistir la informacion y los datos en los contenedores del docker
+- son faciles de respaldar o migrar
+- se pueden administrar utilizando comandos CLI de docker o API de docker
+- los volumenes funcionan tanto en contenedores de linux como windows
+- se puede compartir entre varios contenedores
+- se pueden almacenar volumenes en hosts remotos o en entornos cloud.
+- los contenidos de un nuevo volumen pueden ser rellenados de forma previa por un contenedor
+
+En la ruta --> cd /var/lib/docker almacena la informacion de los dockers (images, containers, redes, etc)
+NO SE TIENE QUE TOCAR
+
+- docker run -it -v /datos --> esto singifica va a crear una carpeta que se llama datos que van a almacenar los volumenes, dentro del contenedor crea una carpeta datos, se puede administrar desde afuera del contenedor el volumen, funciona desde los 2 lados
+
+- docker volume ls --> lista de los volumenes
+- docker volume inspect + id --> nos da informacion de los volumenes
+
+Compartir recursos entre la maquina host y el directorio
+- docker run -it -v '/root/dir1:/dir1' --name ubuntu2 ubuntu --> se crea una carpeta tanto en el host como el contenedor que estan relacionadas
+
+Compartir volumenes entre contenedores
+- docker run -it --name ubuntu5 --volumes-from ubuntu4 --> que ubuntu5 use los volumes que tiene ubuntu4
+- docker volume prune --> elimino todo los volumenes
+
+Crear un volumen independiente
+- docker volumen create 'name'
+- docker run -it --name ubuntu7 -v vol1:/dir ubuntu bash
+
+				Docker IMAGES
+Introduccion:
+	Estan formadas por varias capas de solo lectura.
+	Capas:
+		- Monta el sistema de ficheros de arranque, bootfs (lectura)
+		- Monta de sistema de ficheros de root: rootfs (lectura)
+		- Monta las n capas de imagen (lectura)
+
+Modificar un contenedor:
+	- docker start -i 'name' --> arranco un contenedor
+	- docker diff 'name' --> me muestra las modificaciones que sufrio el contenedor
+
+Docker commit. Crear una imagen manualmente:
+	Puedo crear una imagen de un contenedor con todos los cambios realizados.
+	- docker commit 'nameContenedor' 'nameImagenNueva' --> creo una nueva imagen de este contenedor con todos los cambios realizados
+	
+Dockerfile:
+	Construir images de forma automatica (no puede haber comandos interactivos):
+	- Conjunto de instrucciones que contienen para construir la imagen
+	- FROM --> Imagen padre
+	- FROM SCRACH --> imagen muy lijgera que nos permite crear sin un sistema
+	- -y --> nos permite autorizar instalacion sin que sea de forma interactiva.
+	- docker build --> me permite construir una imagen a partir del dockerfile
+	- docker build -t --> el -t es para asignarle un nombre
+	- . --> donde debe encontrar el contexto donde se encuentra el archivo de docker file.
+
+	RUN:
+	- docker image history imagen_python --> nos permite ver los cambios que sufrio la imagen
+	- nos permite ejecutar
+	
+	CMD:
+	- comando por defecto ( solo le da importancia a un cmd y al ultimo)
+	- CDM echo "Welcome to this container" --> se ejecuta con el comando /bin/sh -c
+	- CDM ["echo", "Welcome to this container"] (no depende de una bash o una shell, es el que mas se utiliza) --> se ejecuta con el comando exec
+	
+	ENTRYPOINT:
+	- igual que el CMD es ejecutar algo cuando arrancamos el contenedor.
+	- diferencia entre CMD & ENTRYPOINT --> nos permite blindar ese comando, que cuando se ejecute el contenedor se ejecute siempre , con cmd no pasa eso.
+	- cuando se crea el contenedor se puede sustituir el CMD por otro comando
+	- SOLO PUEDE HABER 1 
+	
+	WORKDIR:
+	- Directorio de trabajo, nos permite determinar el directorio de trabajo para otras directivas
+	- WORKDIR /datos 
+	- cualquier comando que se ejecute despues de ese comando se ejecutra dentro de esa carpeta
+	- puede haber mas de 1
+	
+	COPY-ADD:
+	- COPY --> copiar contenido de la magina principal ( HOTS ) a un contenedor
+	- COPY index.html . --> el . hace referencia a la carpeta que me encuentro
+	- ADD --> agrega file/directory a otro lugar y si no esta lo existe, tambien nos podemos trear cosas de una url o algo que tengamos en internet
+	
+	ENV:
+	- variables de enterno
+	- docker run -it --rm --env x=10 image:v3 --> creo una variable x = 10, para ver el contenido es echo $x ( nombre de la variable )
+	- tambien se puede con comandos.
+	- trabajar cuando se crea en el contenedor
+	
+	ARG:
+	- para poner variables , no hace falta ponerle un valor por defecto, en el momento de la creacion se le puede asignar un valor.
+	- docker build -t image:v6 --build-arg dir2=/data2 .
+	- se trabaja con la imagen
+	
+	EXPONSE:
+	- exponer puertos para que sean de forma publica ( se tiene que seguir usando el comando -p )
+	- es para saber que puertos va a necesitar, cuando se estre construyendo
+	- EXPONSE 80
+	
+	VOLUME:
+	- nos permite crear volumenes de forma automatica desde el dockerfile
+	- ADD paginas /var/www/html
+	  VOLUME ["/var/www/html"]
+	
+	
+	DOCKER HUB
+	- Raiz ej( ubuntu ) 
+	- Usuario ndifabio/r1
+	
+	Subir Images ( siempre se tiene que subir con el nombre de usuario )
+	- conectarnos a docker hub --> docker login
+	- se crea un nuevo repo con el nuevo nombre asignado --> docker image tag image:v3 ndifabio:v3
+	- docker push + image
+	
+	Integracion continua ( docker hub y github ) de forma automatica
+	- tiene que haber de forma obligatoria un archivo Dockerfile
+	
+				DOCKER COMPOSE
+- orqueta servicios o componentes de contenedores
+- fichero YML docker-compose.yml
+- si se hubiera usado el comando -d en el docker-compose up --> tendria que usar el docker-compose stop para pararlo
+
+Enlazar servicios, puertos y variables
+ej: compose/compose-link
+- crea una red personalizada por cada compose
+
+Diversos comandos de Docker-Compose
+- docker-compose ps --> nos muestra los contenedores y el estado y el puerto
+- docker-compose config --> revisa si la informacion y no muestra por pnatalla si el archivo .yml es correcto
+- docker-compose start --> arranca el/los contenedores del docker compose
+- docker-compose logs + 'nombreServicio' --> me muestra los logs del servicio
+- docker-compose pause --> pauso los servicios
+- docker-compose rm --> para eliminar los servicios
+- docker-compose up --> para generar los contenedores que tiene adentro el archivo docker-compose.yml
+
+Volumenes Docker-Compose
+- nos permite compartir volumenes entre docker y el host de nuestra maquina
+- docker volume -ls --> volumes de docker
+
+				Docker Registry
+Registro de docker ( alternatiba a docker hub ) de forma local
+para crear un docker registry se tiene que bajar de docker hub. (registry) ( docker pull registry )
+- docker run -d -p 5000:5000 --name registro1 registry --> se crea un registry con el nombre registro1 en el puerto 5000 que es el puerto por defecto de registry 
+
+Subir y bajar Imagenes del registro
+- docker run registro1
+para poder subir una imagen se tiene que etiquetar con ese repositorio se usa la opcion tag del comando docker
+- docker tag ubuntu , 'nombreDeLaMquina',el puerto y la /para asignarle un nombre--> docker tag ubuntu localhost:5000/mi-ubuntu 
+- para subir es --> docker push localhost:5000/mi-ubuntu
+- docker rmi localhost:5000/mi-ubuntu --> elimina la imagen de la local que se encuentra 
+
+Cambiar de almacenamiento Docker Registry
+
+				Docker Swarm
+( docker swarm join --token SWMTKN-1-5n3wh4fpcnciunci03j871frt3kllgtq29e4c1tcdf4vavrlj2-c113uu57ci7101co45l4lsmlb 192.168.1.22:2377 )
+
+Permite crear un cluster de uno o mas nodos Dockers.
+Esto permite disponer de "servicios" que se despliegan de forma replicada a lo largo de los nodos del cluster.
+Siempre debemo indicar la imagen a usar para crear los contenedores y que comandos lanzar dentro.
+
+- Manager --> se encarga en el manejo y del estado ( puede haber muchos )
+- Worker --> es un nodo que se encarga del trabajo ( cada nodo es una maquina fisica o virtual )
+
+Como crear un Cluster
+- docker swarm --> nos permite realizar la gestion del cluster
+- docker service --> nos permite crear los servicios y las tareas que van dentro del cluster
+
+- docker swarm init --> inizialidar nuevo cluster ( necesita saber por que IP va a poder trabajar, asi los proximos nodos se van a conectar a ese cluster )
+- se tiene que utilizar una direccion estatica.
+- docker info --> Swarm: active --> para observar la info de los swarm ( ip )
+- docker swarm join-token worker --> como tengo que poner el comando para unirme a este cluster
+
+Agregar Nodos al cluster
+- docker swarm join --token 'token' --> se une al manager que se habia creado
+
+Trabajar con Nodos
+- docker node ( ls , inspect ) --> nos permite obtener informacion de los nodos
+- docker node promote node3 --> se va a promover a manager
+- docker node demote nodo1 --> lo bajo a worker 
+- docker swarm leave --> para que el nodo se vaya del cluster
+- docker node rm nodo1 --> lo elimino
+
+Crear y trabajar con servicios
+- docker service create --replicas 1 --name servicio1 alpine ping docker.com --> para crear un servicio y se ejeta una consulta a un ping
+
+Escalar un Servicio
+Poder repetir ese servicio distintas veces
+- docker service scale servicio1=5 --> que el servicio1 se replica 5 veces
+
+Borrar un Servicios
+- docker service scale servicio1=3 --> elimina los anterior y crea una nueva cantidad
+- docker service rm servicio1
+
+					KUBERNETES
+Orquestador de contenedor, nos permite trabajar con un cluster de contenedores.
+Permite crear un cluster de nodos que implementa determinadas funcionalidades:
+- Permite alta diponibilidad
+- Es tolerante a fallos
+- Permite escalar cuando queda corto de recursos
+- Traba de forma eficiente
+- Se pueden realizar cambios y operaciones en caliente.
+
