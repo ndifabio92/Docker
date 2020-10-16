@@ -280,3 +280,16 @@ Permite crear un cluster de nodos que implementa determinadas funcionalidades:
 - Traba de forma eficiente
 - Se pueden realizar cambios y operaciones en caliente.
 
+Arquitectura
+- Cliente --> Maestro --> muchos nodo
+- Maestro:
+	- Sheduler --> planificador el trabajo de los nodos ( contienen informacion necesaria de los nodos)
+	- Controller Manager --> es un proceso, que comprueba o regula el estado del cluster
+	- API-SERVER --> todas las tereas tipo de administracion que voy a realizar sobre el cluster
+	- ETCM --> Almacena clave valor --> mantener el estado del cluster dentro de la base de datos ( puede ser interno o externo )
+- Nodo:
+	- Container Runtime --> adminite varios tipos de container
+	- pod --> una coleccion de uno o mas contenedores que trabajan de forma coorperativa
+	- kubelet --> conector entre el maestro y el esclavo ( nodo )
+	- kube-proxy
+
