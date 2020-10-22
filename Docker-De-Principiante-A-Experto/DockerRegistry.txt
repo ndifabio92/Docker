@@ -1,0 +1,7 @@
+Servicio donde podremos subir y bajar imagenes de forma local
+
+- docker run -d -p 5000:5000 --name registry -v $PWD/data:/var/lib/registry registry:2
+- docker tag 'nombreActualDeLaImage':latest localhost:5000/hello-world --> se tagea la imagen en nuestro registry
+- docker push localhost:5000/hello-world --> para subir la imagen a nuestro registry
+- docker pull localhost:5000/hello-world --> para bajar una imagen desde nuestro registry
+- 

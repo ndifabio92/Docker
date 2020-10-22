@@ -1,0 +1,65 @@
+    Imagenes oficiales
+
+solo tienen el nombre, ej: mongo, se puede seleccionar una version por un tag, se le puede agregar a la descarga
+
+- Descargar una Imagen: docker pull 'imagen':'tag'
+- docker images | grep 'image' --> y me muestra un listado de todas las images seleccionada
+
+  Crear una imagen
+Dockerfile --> Archivo de configuracion
+Convertir dockerfile en una imagen.
+- docker build --tag apache-centos . 
+  - apache-centos es el nombre.
+  - --tag para decirle que tag le vamos a poner con :, en este caso no le vamos a asignar ninguno
+  - el . es para que tome el dockerfile de la carpeta
+
+- docker build --tag apache-centos:primera .
+  - image con tag
+
+crear un contenedor a apartir de una image
+- docker run -d apache-centos
+  - -d es para que se ejecute en el fondo
+  - apache-centos --> nombre de la imagen
+
+
+    DOCKER FILE
+
+Archivo de configuracion para crear images
+
+- FROM --> especificacmos que sistema operativos vamos a utilizar
+- RUN --> instrucciones que se pueden ejecutar en la terminal
+- COPY/ADD --> copiar o agregar archivos desde nuestra pc
+- ADD --> se puede agregar url y descargar archivos ( generalmente se usa COPY )
+
+- ENV --> variables de entorno
+    ENV 'name' 'value'
+    RUN echo '$name'
+    RUN echo '$name' > file.txt
+
+- WORKDIR --> donde estoy trabajando
+ 
+- EXPOSE --> puerto distinto al que usaria por defecto al de apache 
+- LABEL --> etiqueta dejar informacion adentro del dockerfile
+- USER --> dejefino un usuario para las siguientes ejecuciones 
+- VOLUME --> es una manera de colocar data persistente dentro del contenedor ( es una carpeta en nuestra pc ) 
+- CMD --> se van a ejecutar cuando el container exista
+- dockerignore --> archivo oculto ( como el .git ignore )
+
+    Buenas Practicas
+Pocas Capas
+Build context -> .dockerignore
+Multilineas ( usar el && para que sea multiples lineas y que se separan con \ cada linea para que sea mas entendible ) y usar variables de entorno
+No instalar paquetes innecesarios
+Usar Labels
+Un container con un solo servicio
+Ejemplo:
+  - FROM nginx
+  - ENV dir /user/share/nginx/html/test.txt
+  - RUN \ 
+      echo "4" >> $dir && \
+      echo "5" >> $dir && \
+      echo "6" >> $dir
+
+    Eliminar Imagenes
+- docker images --> ver imagenes
+- docker rmi 'id/name' --> eliminar images por id o nombre
