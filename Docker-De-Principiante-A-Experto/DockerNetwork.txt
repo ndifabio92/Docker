@@ -1,0 +1,46 @@
+    Redes
+
+Crear/Eliminar
+
+Tipos de Redes:
+  - Bridge
+  - Host
+  - None
+  - Overlay
+
+Conectar contenedores
+- docker network ls --> me muestra todas las redes
+
+Crear una red
+- docker network create 'nombre' --> se crea una red por el usuario
+- docker network create -d bridge --subnet 172.199... --> creo una nueva red con mas parametros
+    -d 'driver' --> driver
+    --subnet 'numeroIp'
+    --gateway 172.124.10.1 'nombre'
+
+Inspeccionar Redes
+- docker inspect 'nombre de la red' --> me muestra la configuracion de la network
+
+Crear un contenedor a un red distinta
+- docker run --network 'Red' -d  --name test3 -ti centos
+    -ti --> imagen interactiva
+
+Conectar contenedores a la misma red
+- docker exec cont1 bash -c "ping 172.124.10.3" --> desde el contenedor1 hago un ping al contenedor2
+- docker exec const1 bash -c "ping 'nombreContenedor'" --> de esta forma se evita saber la ip del contendor2
+
+Conectar contenedores en distintas redes
+- docker network connect 'contenedor' --> me permite conectar un contenedor a una red distinta
+- docker network disconnet 'contenedor' --> desconecta un contenedor de la red a la cual esta conectada
+
+Eliminar Redes
+- docker network rm 'nombre de la red' --> para eliminar la red , primero se tiene que eliminar el contenedor
+
+Asignar IP a un contenedor
+- docker network create --subnet 172.128.0.10.0/24 --gateway 172.128.10.1 -d bridge my net --> le asigno el puerto ip a travez del comando --gateway
+
+La Red de Host
+- docker run --network host --> host es una red que ya existe dentro de nuestra pc
+
+La red None
+Es una red que no esta configurada, vacia.
